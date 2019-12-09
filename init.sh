@@ -19,6 +19,8 @@ ln -s /usr/local/bin/bt-pan.py /usr/local/bin/bt-pan
 echo "auto pan0\niface pan0 inet manual\n    bridge_ports none\n    bridge_stp off" \
 >> /etc/network/interfaces
 
+systemctl restart networking
+
 systemctl enable blueagent5
 systemctl enable bt-pan
 systemctl list-units --type target --all
