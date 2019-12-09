@@ -2,21 +2,41 @@
 
 # Create Personal Area Network via Bluetooth
 apt update
-apt install bluez-tools -y
+apt install bridge-utils bluez python-dbus python-gobject -y
 
-cp ./config-files/pan0.netdev /etc/systemd/network/pan0.netdev
-cp ./config-files/pan0.network /etc/systemd/network/pan0.network
-cp ./config-files/bt-agent.service /etc/systemd/system/bt-agent.service
-cp ./config-files/bt-network.service /etc/systemd/system/bt-network.service
+cp ./config-files/blueagent5.py ./config-files/bt-pan.py /usr/local/bin/
+cp ./config-files/blueagent5.service \
+./config-files/bt-pan.service \
+./config-files/custom.target \
+./config-files/pan-network.service \
+/etc/systemd/system/
 
-systemctl enable systemd-networkd
-systemctl enable bt-agent
-systemctl enable bt-network
-systemctl start systemd-networkd
-systemctl start bt-agent
-systemctl start bt-network
+chmod 755 /usr/local/bin/*.py
+ 
+ln -s /usr/local/bin/blueagent5.py /usr/local/bin/blueagent5
+ln -s /usr/local/bin/bt-pan.py /usr/local/bin/bt-pan
 
-sudo bt-adapter --set Discoverable 1
+echo -e "auto pan0\niface pan0 inet manual\tbridge_ports none\tbridge_stp off" \
+>> /etc/network/interfaces
+
+systemctl enable blueagent5
+systemctl enable bt-pan
+systemctl list-units --type target --all
+systemctl isolate custom.target
+ln -sf /etc/systemd/system/custom.target /etc/systemd/system/default.target
+
+/sbin/modprobe bnep
+/bin/hciconfig hci0 lm master,accept
+/sbin/ip link set pan0 up
+/bin/hciconfig hci0 sspmode 0
+
+systemctl enable pan-network
+
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+echo "PRETTY_HOSTNAME=Portable-project" > /etc/machine-info
+
+service bluetooth restart
+
 
 # Save energy
 
