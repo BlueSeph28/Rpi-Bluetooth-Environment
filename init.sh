@@ -16,7 +16,7 @@ chmod 755 /usr/local/bin/*.py
 ln -s /usr/local/bin/blueagent5.py /usr/local/bin/blueagent5
 ln -s /usr/local/bin/bt-pan.py /usr/local/bin/bt-pan
 
-echo -e "auto pan0\niface pan0 inet manual\n    bridge_ports none\n    bridge_stp off" \
+echo "auto pan0\niface pan0 inet manual\n    bridge_ports none\n    bridge_stp off" \
 >> /etc/network/interfaces
 
 systemctl enable blueagent5
@@ -32,7 +32,7 @@ ln -sf /etc/systemd/system/custom.target /etc/systemd/system/default.target
 
 systemctl enable pan-network
 
-echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 echo "PRETTY_HOSTNAME=Portable-project" > /etc/machine-info
 
 service bluetooth restart
